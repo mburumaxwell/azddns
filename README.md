@@ -10,7 +10,7 @@ IP information sourced from [ipify](https://www.ipify.org) using <https://api64.
 
 - Support IPv6 alongside IPv4 (i.e. `AAAA` and `A` records).
 - Support for dry run (useful to see if it will work as expected).
-- Check current IP to prevent uncessary updates.
+- Check current IP to prevent unnecessary updates.
 - Runs on **headless devices** (e.g., Raspberry Pi) and in **automated environments** (e.g., cron jobs, ACA, AKS, ACI).
 - Support homebrew, scoop, docker and standalone binaries.
 
