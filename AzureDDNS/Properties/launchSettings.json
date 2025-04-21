@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "AzureDDNS": {
+      "commandName": "Project",
+      // "commandLineArgs": "azddns update --subscription MAXWELLWERU -g MAXWELLWERU --zone maxwellweru.io --record office --interval 600",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
