@@ -83,13 +83,6 @@ jobs:
         --no-build
         --collect "Code coverage"
 
-    - name: Publish
-      run: >
-        dotnet publish
-        ${{ github.workspace }}/AzureDDNS/AzureDDNS.csproj
-        --configuration Release
-        --output ${{ github.workspace }}/drop/AzureDDNS
-
     - name: Pack
       run: >
         dotnet pack
