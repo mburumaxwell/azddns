@@ -5,6 +5,7 @@
     <Deterministic>true</Deterministic>
     <Description>Dynamic DNS (DDNS) tool for Azure DNS.</Description>
     <Product>Azure DDNS</Product>
+    <IsPackable>true</IsPackable> <!-- Required when using Microsoft.NET.Sdk.Worker -->
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>azddns</ToolCommandName>
     <PackageId>azddns</PackageId>
