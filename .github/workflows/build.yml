@@ -66,9 +66,10 @@ jobs:
       with:
         useConfigFile: true
 
-  Build:
+  NugetTool:
     runs-on: ubuntu-latest
     needs: Version
+    name: Build NuGet Tool
 
     steps:
     - name: Checkout
