@@ -1,6 +1,0 @@
-FROM mcr.microsoft.com/dotnet/runtime:9.0-bookworm-slim AS base
-USER app
-WORKDIR /app
-
-COPY . .
-ENTRYPOINT ["dotnet", "AzureDDNS.dll"]

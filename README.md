@@ -6,7 +6,7 @@ Keeps records like `office.maxwellweru.io` or `office.contoso.com` up-to-date wi
 
 IP information sourced from [ipify](https://www.ipify.org) using <https://api64.ipify.org?format=json>
 
-## ✅ Futures
+## ✅ Features
 
 - Support IPv6 alongside IPv4 (i.e. `AAAA` and `A` records).
 - Support for dry run (useful to see if it will work as expected).
@@ -69,7 +69,7 @@ azddns run --config ~/.az-ddns/config.json
 
 ## 🔐 Authentication Strategy
 
-Authentication is handled using **Azure.Identity**'s `DefaultAzureCredential`. It chains multiple sources as described in the [official docs](https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication/credential-chains?tabs=dac)
+Authentication is handled using **Azure.Identity**'s `DefaultAzureCredential`. It chains multiple sources as described in the [official docs](https://learn.microsoft.com/dotnet/azure/sdk/authentication/credential-chains?tabs=dac)
 
 ### Service Principal (preferred for headless)
 
@@ -77,11 +77,54 @@ Authentication is handled using **Azure.Identity**'s `DefaultAzureCredential`. I
 export AZURE_TENANT_ID=ttt
 export AZURE_CLIENT_ID=ccc
 export AZURE_CLIENT_SECRET=sss
-export AZURE_SUBSCRIPTION_ID=sss
 azddns run --config ~/.az-ddns/config.json
 ```
 
 > A managed identity is basically a service principal that you use without having to manage the credentials. System assigned managed identities are simple and no further configuration is required. For User assigned managed identity, you only need to set the `AZURE_CLIENT_ID` environment variable to disambiguate from any other being used by the platform such as when using ACA jobs.
+
+## Docker
+
+The CLI tool is also available as a Docker image: [mburumaxwell/azddns](https://github.com/mburumaxwell/azddns/pkgs/container/azddns).
+
+With the update command
+
+```bash
+docker run --rm -it \
+  --env AZURE_TENANT_ID=ttt \
+  --env AZURE_CLIENT_ID=ccc \
+  --env AZURE_CLIENT_SECRET=sss \
+  ghcr.io/mburumaxwell/azddns update \
+  --zone maxwellweru.io \
+  --record office \
+  --resource-group infra \
+  --subscription personal \
+  --ttl 3600 \
+  --dry-run
+```
+
+With a config file:
+
+```bash
+docker run --rm -it \
+  --env AZURE_TENANT_ID=ttt \
+  --env AZURE_CLIENT_ID=ccc \
+  --env AZURE_CLIENT_SECRET=sss \
+  --volume "$HOME/.az-ddns:/config" \
+  ghcr.io/mburumaxwell/azddns \
+  run --config /config/config.json
+```
+
+### ⚡ Using Azure CLI authentication (no env vars)
+
+If you've already authenticated locally with `az login`. You can mount your Azure CLI credentials into the container to enable `DefaultAzureCredential` pick up your local `az login` session automatically:
+
+```bash
+docker run --rm -it \
+  --volume "$HOME/.azure:/root/.azure" \
+  --volume "$HOME/.az-ddns:/config" \
+  ghcr.io/mburumaxwell/azddns \
+  run --config /config/config.json
+```
 
 ## Alternatives
 
