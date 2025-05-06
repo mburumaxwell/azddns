@@ -4,7 +4,7 @@ WORKDIR /src
 COPY . .
 
 ARG TARGETPLATFORM
-ARG VERSION=0.0.0-dev
+ARG VERSION=0.1.0-dev
 
 # Use TARGETPLATFORM to determine the correct runtime ID, validate, then map to RuntimeIdentifier (RID)
 RUN echo "TARGETPLATFORM=${TARGETPLATFORM}" && \
