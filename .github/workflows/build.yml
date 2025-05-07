@@ -127,13 +127,15 @@ jobs:
         - { os: ubuntu, rid-prefix: 'linux' }
         - { os: windows, rid-prefix: 'win' }
         - { os: macos, rid-prefix: 'osx' }
+        # https://github.blog/changelog/2025-01-16-linux-arm64-hosted-runners-now-available-for-free-in-public-repositories-public-preview/
+        - { os: ubuntu, arch: 'arm64', runs-on: ubuntu-24.04-arm }
         - { os: windows, archive-type: 'zip' } # windows creates zip files, others default to 'tar'
         exclude:
         # only windows supports x86 for PublishAot
         - { os: macos, arch: 'x86' }
         - { os: ubuntu, arch: 'x86' }
 
-    runs-on: ${{ format('{0}-{1}', matrix.os, 'latest') }}
+    runs-on: ${{ matrix.runs-on || format('{0}-{1}', matrix.os, 'latest') }}
     needs: Build
 
     env:
@@ -146,30 +148,6 @@ jobs:
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
-
-    # NativeAOT does not support full cross-compilation out of the box.
-    # When targeting linux-arm64 from a linux-amd64 GitHub Actions runner:
-    # - The compiler generates ARM64 native object files
-    # - But the host's default linker (ld.bfd or lld) cannot link ARM64 binaries
-    # - We explicitly install and use aarch64-linux-gnu-ld, the cross-linker
-    #
-    # For linux-x64, we skip this override and let the SDK pick the default linker (lld)
-    # This setup allows multi-arch AoT builds in one Dockerfile via docker buildx
-    # Some guidance from
-    # - https://github.com/dotnet/dotnet-docker/blob/main/src/sdk/10.0/trixie-slim-aot/amd64/Dockerfile
-    # - https://github.com/dn-vm/dnvm/blob/main/.github/workflows/publish.yml
-    # - https://github.com/dotnet/runtimelab/issues/1785#issuecomment-993179119
-    # - https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot
-    # - scouring the web!
-    - name: Install arm64 linker and runtime support
-      if: ${{ matrix.os == 'ubuntu' && matrix.arch == 'arm64' }}
-      run: |
-        sudo apt-get update && \
-        sudo apt-get install -y \
-          clang llvm zlib1g-dev \
-          binutils-aarch64-linux-gnu \
-          gcc-aarch64-linux-gnu \
-          libc6-dev-arm64-cross
 
     - name: Build & Publish
       run: >
