@@ -323,11 +323,11 @@ jobs:
         method: 'sha256'
         output: 'checksum.txt'
         patterns: |
-          releases/azddns-*.apk
-          releases/azddns-*.deb
-          releases/azddns-*.rpm
-          releases/azddns-*.tar.gz
-          releases/azddns-*.zip
+          native/azddns-*.apk
+          native/azddns-*.deb
+          native/azddns-*.rpm
+          native/azddns-*.tar.gz
+          native/azddns-*.zip
 
     - name: Upload Artifact (checksum)
       uses: actions/upload-artifact@v4
