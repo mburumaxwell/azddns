@@ -118,6 +118,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
+        # linux-arm (ArmV7) is not ready for AoT yet (https://github.com/mburumaxwell/azddns/pull/8)
         os: [ 'macos', 'ubuntu', 'windows' ]
         arch: [ 'arm64', 'x86', 'x64' ]
         include:
@@ -181,6 +182,10 @@ jobs:
         ${{ matrix.os == 'ubuntu' && matrix.arch == 'arm64' && '-p:IlcPath=/usr/bin/aarch64-linux-gnu-ld' || '' }}
         --output ${{ github.workspace }}/native/${{ env.DOTNET_RID }}
         AzureDDNS/AzureDDNS.csproj
+
+    - name: Remove Debug Symbols
+      run: rm -rf *.pdb *.dbg *.dSYM
+      working-directory: ${{ github.workspace }}/native/${{ env.DOTNET_RID }}
 
     - name: Test (Binary) # ensure the CLI can launch (catches global DI issues)
       # ARM runners are in preview and we cannot use them, so we skip this test
