@@ -119,7 +119,7 @@ jobs:
       fail-fast: true
       matrix:
         os: [ 'macos', 'ubuntu', 'windows' ]
-        arch: [ 'arm64', 'x64' ]
+        arch: [ 'arm64', 'x86', 'x64' ]
         include:
         # list of RIDs (Runtime Identifiers) can be found at:
         # https://github.com/dotnet/runtime/blob/main/src/libraries/Microsoft.NETCore.Platforms/src/runtime.json
@@ -129,6 +129,10 @@ jobs:
         # macos-latest uses macos-12 which fails to build the app (macos-13 works)
         - { os: macos, runs-on: 'macos-13' } # macos-latest
         - { os: windows, archive-type: 'zip' } # windows creates zip files, others default to 'tar'
+        exclude:
+        # only windows supports x86 for PublishAot
+        - { os: macos, arch: 'x86' }
+        - { os: ubuntu, arch: 'x86' }
 
     runs-on: ${{ matrix.runs-on || format('{0}-{1}', matrix.os, 'latest') }}
     needs: Build
