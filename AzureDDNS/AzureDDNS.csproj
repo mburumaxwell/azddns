@@ -63,15 +63,9 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta5.25230.108" />
     <PackageReference Include="System.Net.Http.Json" Version="9.0.4" />
-    <PackageReference Include="System.Memory.Data" Version="9.0.4" /> <!-- Transient, later version supports trimming -->
+    <PackageReference Include="System.Memory.Data" Version="9.0.4" /> <!-- Transient, later version supports AoT -->
     <PackageReference Include="Tingle.Extensions.Logging" Version="5.2.0" />
     <PackageReference Include="Tingle.Extensions.Primitives" Version="5.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Would be nice but they are too big -->
-    <!-- <TrimmerRootAssembly Include="Azure.ResourceManager.Dns" Preserve="All" /> -->
-    <!-- <TrimmerRootAssembly Include="Azure.ResourceManager" Preserve="All" /> -->
   </ItemGroup>
 
   <ItemGroup>
