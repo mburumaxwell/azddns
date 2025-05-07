@@ -310,11 +310,11 @@ jobs:
     needs: [Build, Native]
 
     steps:
-    - name: Download Artifact (native)
+    - name: Download Artifact (releases)
       uses: actions/download-artifact@v4
       with:
-        path: native
-        pattern: native-*
+        path: releases
+        pattern: releases-*
         merge-multiple: true
 
     - name: Generate checksum
@@ -323,11 +323,11 @@ jobs:
         method: 'sha256'
         output: 'checksum.txt'
         patterns: |
-          native/azddns-*.apk
-          native/azddns-*.deb
-          native/azddns-*.rpm
-          native/azddns-*.tar.gz
-          native/azddns-*.zip
+          releases/azddns-*.apk
+          releases/azddns-*.deb
+          releases/azddns-*.rpm
+          releases/azddns-*.tar.gz
+          releases/azddns-*.zip
 
     - name: Upload Artifact (checksum)
       uses: actions/upload-artifact@v4
@@ -335,6 +335,13 @@ jobs:
         path: checksum.txt
         name: checksum
         retention-days: 1
+
+    - name: Download Artifact (native)
+      uses: actions/download-artifact@v4
+      with:
+        path: native
+        pattern: native-*
+        merge-multiple: true
 
     - name: Upload Artifact (binaries)
       uses: actions/upload-artifact@v4
