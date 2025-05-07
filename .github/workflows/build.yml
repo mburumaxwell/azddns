@@ -88,20 +88,20 @@ jobs:
         dotnet pack
         --no-build
         --configuration Release
-        --output ${{ github.workspace }}/drop
+        --output ${{ github.workspace }}/tool
         -p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }}
 
-    - name: Upload Artifact (drop)
+    - name: Upload Artifact (tool)
       uses: actions/upload-artifact@v4
       with:
-        path: ${{ github.workspace }}/drop/*
-        name: drop
+        path: ${{ github.workspace }}/tool/*
+        name: tool
         retention-days: 1
 
     - name: Publish to GitHub Packages
       if: ${{ github.actor != 'dependabot[bot]' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags')) }}
       run: >
-        dotnet nuget push "${{ github.workspace }}/drop/*"
+        dotnet nuget push "${{ github.workspace }}/tool/*"
         --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
         --api-key ${{ secrets.GITHUB_TOKEN }}
         --skip-duplicate
@@ -109,7 +109,7 @@ jobs:
     - name: Publish to NuGet.org
       if: ${{ github.actor != 'dependabot[bot]' && startsWith(github.ref, 'refs/tags') }}
       run: >
-        dotnet nuget push "${{ github.workspace }}/drop/*"
+        dotnet nuget push "${{ github.workspace }}/tool/*"
         --source "https://api.nuget.org/v3/index.json"
         --api-key ${{ secrets.NUGET_API_KEY }}
         --skip-duplicate
@@ -177,7 +177,7 @@ jobs:
         -p:VersionPrefix=${{ needs.Build.outputs.fullSemVer }}
         -p:PublishAot=true
         ${{ matrix.os == 'ubuntu' && matrix.arch == 'arm64' && '-p:IlcPath=/usr/bin/aarch64-linux-gnu-ld' || '' }}
-        --output ${{ github.workspace }}/drop/${{ env.DOTNET_RID }}
+        --output ${{ github.workspace }}/native/${{ env.DOTNET_RID }}
         AzureDDNS/AzureDDNS.csproj
 
     - name: Test (Binary) # ensure the CLI can launch (catches global DI issues)
@@ -186,13 +186,13 @@ jobs:
       # TODO: consider using QEMU emulator for ARM?
       if: ${{ !contains(matrix.arch, 'arm') }}
       run: ./azddns --version
-      working-directory: ${{ github.workspace }}/drop/${{ env.DOTNET_RID }}
+      working-directory: ${{ github.workspace }}/native/${{ env.DOTNET_RID }}
 
-    - name: Upload Artifact (drop)
+    - name: Upload Artifact (native)
       uses: actions/upload-artifact@v4
       with:
-        path: ${{ github.workspace }}/drop/**
-        name: drop-${{ env.DOTNET_RID }}
+        path: ${{ github.workspace }}/native/**
+        name: native-${{ env.DOTNET_RID }}
         retention-days: 1
 
     - name: Create Archive Folder
@@ -203,7 +203,7 @@ jobs:
       with:
         type: ${{ matrix.archive-type || 'tar' }}
         filename: ${{ github.workspace }}/releases/azddns-${{ needs.Build.outputs.fullSemVer }}-${{ env.DOTNET_RID }}.${{ env.ARCHIVE_EXT }}
-        directory: ${{ github.workspace }}/drop/${{ env.DOTNET_RID }}
+        directory: ${{ github.workspace }}/native/${{ env.DOTNET_RID }}
 
     - name: Upload Artifact (releases)
       uses: actions/upload-artifact@v4
@@ -261,11 +261,11 @@ jobs:
         MAJOR: ${{ needs.Build.outputs.major }}
         MINOR: ${{ needs.Build.outputs.minor }}
 
-    - name: Download Artifact (drop)
+    - name: Download Artifact (native)
       uses: actions/download-artifact@v4
       with:
-        path: drop
-        pattern: drop-*
+        path: native
+        pattern: native-*
         merge-multiple: true
 
     - name: Set up Docker Buildx
