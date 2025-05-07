@@ -38,7 +38,7 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
 
 jobs:
-  Version:
+  Build:
     runs-on: ubuntu-latest
     outputs:
       shortSha: ${{ steps.gitversion.outputs.shortSha }}
@@ -66,18 +66,6 @@ jobs:
       with:
         useConfigFile: true
 
-  NugetTool:
-    runs-on: ubuntu-latest
-    needs: Version
-    name: Build NuGet Tool
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v4
-
     - name: Restore
       run: dotnet restore
 
@@ -86,7 +74,7 @@ jobs:
         dotnet build
         --configuration Release
         --no-restore
-        -p:VersionPrefix=${{ needs.Version.outputs.fullSemVer }}
+        -p:VersionPrefix=${{ steps.gitversion.outputs.fullSemVer }}
 
     - name: Test
       run: >
@@ -101,7 +89,7 @@ jobs:
         --no-build
         --configuration Release
         --output ${{ github.workspace }}/drop
-        -p:PackageVersion=${{ needs.Version.outputs.fullSemVer }}
+        -p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }}
 
     - name: Upload Artifact (drop)
       uses: actions/upload-artifact@v4
@@ -143,8 +131,7 @@ jobs:
         - { os: windows, archive-type: 'zip' } # windows creates zip files, others default to 'tar'
 
     runs-on: ${{ matrix.runs-on || format('{0}-{1}', matrix.os, 'latest') }}
-    needs: Version
-    name: Build Native
+    needs: Build
 
     env:
       DOTNET_RID: ${{ format('{0}-{1}', matrix.rid-prefix, matrix.arch) }}
@@ -186,8 +173,8 @@ jobs:
         dotnet publish
         --runtime ${{ env.DOTNET_RID }}
         --configuration Release
-        -p:PackageVersion=${{ needs.Version.outputs.fullSemVer }}
-        -p:VersionPrefix=${{ needs.Version.outputs.fullSemVer }}
+        -p:PackageVersion=${{ needs.Build.outputs.fullSemVer }}
+        -p:VersionPrefix=${{ needs.Build.outputs.fullSemVer }}
         -p:PublishAot=true
         ${{ matrix.os == 'ubuntu' && matrix.arch == 'arm64' && '-p:IlcPath=/usr/bin/aarch64-linux-gnu-ld' || '' }}
         --output ${{ github.workspace }}/drop/${{ env.DOTNET_RID }}
@@ -215,7 +202,7 @@ jobs:
       uses: thedoctor0/zip-release@master
       with:
         type: ${{ matrix.archive-type || 'tar' }}
-        filename: ${{ github.workspace }}/releases/azddns-${{ needs.Version.outputs.fullSemVer }}-${{ env.DOTNET_RID }}.${{ env.ARCHIVE_EXT }}
+        filename: ${{ github.workspace }}/releases/azddns-${{ needs.Build.outputs.fullSemVer }}-${{ env.DOTNET_RID }}.${{ env.ARCHIVE_EXT }}
         directory: ${{ github.workspace }}/drop/${{ env.DOTNET_RID }}
 
     - name: Upload Artifact (releases)
@@ -227,7 +214,7 @@ jobs:
 
   Docker:
     runs-on: ubuntu-latest
-    needs: [Version, Native]
+    needs: [Build, Native]
     env:
       DOCKER_TAGS: '' # helps with intellisense
       IMAGE_NAME: 'azddns'
@@ -269,10 +256,10 @@ jobs:
           core.exportVariable('DOCKER_TAGS', tags.join(','));
       env:
         IMAGE_NAME: ${{ env.IMAGE_NAME }}
-        SHORT_SHA: ${{ needs.Version.outputs.shortSha }}
-        FULL_SEMVER: ${{ needs.Version.outputs.fullSemVer }}
-        MAJOR: ${{ needs.Version.outputs.major }}
-        MINOR: ${{ needs.Version.outputs.minor }}
+        SHORT_SHA: ${{ needs.Build.outputs.shortSha }}
+        FULL_SEMVER: ${{ needs.Build.outputs.fullSemVer }}
+        MAJOR: ${{ needs.Build.outputs.major }}
+        MINOR: ${{ needs.Build.outputs.minor }}
 
     - name: Download Artifact (drop)
       uses: actions/download-artifact@v4
@@ -302,12 +289,10 @@ jobs:
         cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
         cache-to: type=inline # sets BUILDKIT_INLINE_CACHE=1
         tags: ${{ env.DOCKER_TAGS }}
-        build-args: |
-          VERSION=${{ needs.Version.outputs.fullSemVer }}
         labels: |
           org.opencontainers.image.description="Cleanup tool for Azure resources for reviews"
           org.opencontainers.image.source=${{ github.repository }}
-          org.opencontainers.image.version=${{ needs.Version.outputs.fullSemVer }}
+          org.opencontainers.image.version=${{ needs.Build.outputs.fullSemVer }}
           org.opencontainers.image.revision=${{ github.sha }}
           org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
           com.github.image.run.id=${{ github.run_id }}
