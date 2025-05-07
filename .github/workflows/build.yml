@@ -168,11 +168,7 @@ jobs:
       run: rm -rf *.pdb *.dbg *.dSYM
       working-directory: ${{ github.workspace }}/binaries/${{ env.DOTNET_RID }}
 
-    - name: Test (Binary) # ensure the CLI can launch (catches global DI issues)
-      # ARM runners are in preview and we cannot use them, so we skip this test
-      # https://github.blog/changelog/2023-10-30-accelerate-your-ci-cd-with-arm-based-hosted-runners-in-github-actions/
-      # TODO: consider using QEMU emulator for ARM?
-      if: ${{ !contains(matrix.arch, 'arm') }}
+    - name: Test (Binary)
       run: ./azddns --version
       working-directory: ${{ github.workspace }}/binaries/${{ env.DOTNET_RID }}
 
