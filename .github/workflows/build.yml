@@ -327,6 +327,14 @@ jobs:
           releases/azddns-*.tar.gz
           releases/azddns-*.zip
 
+    # retain only the file names
+    - name: Strip directory
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+        find: "native/azddns-"
+        replace: "azddns-"
+        include: checksum.txt
+
     - name: Upload Artifact (checksum)
       uses: actions/upload-artifact@v4
       with:
