@@ -14,4 +14,7 @@ RUN case "$TARGETPLATFORM" in \
 # remove binaries we don't need
 RUN rm -rf /native
 
+# set executable permissions (needed because we are copying from  outside the container)
+RUN chmod +x /bin/azddns
+
 ENTRYPOINT ["/bin/azddns"]
