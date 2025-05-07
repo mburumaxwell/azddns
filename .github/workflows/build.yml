@@ -184,6 +184,7 @@ jobs:
         AzureDDNS/AzureDDNS.csproj
 
     - name: Remove Debug Symbols
+      shell: bash
       run: rm -rf *.pdb *.dbg *.dSYM
       working-directory: ${{ github.workspace }}/native/${{ env.DOTNET_RID }}
 
