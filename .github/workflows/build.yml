@@ -126,15 +126,13 @@ jobs:
         - { os: ubuntu, rid-prefix: 'linux' }
         - { os: windows, rid-prefix: 'win' }
         - { os: macos, rid-prefix: 'osx' }
-        # macos-latest uses macos-12 which fails to build the app (macos-14 works)
-        - { os: macos, runs-on: 'macos-14' } # macos-latest
         - { os: windows, archive-type: 'zip' } # windows creates zip files, others default to 'tar'
         exclude:
         # only windows supports x86 for PublishAot
         - { os: macos, arch: 'x86' }
         - { os: ubuntu, arch: 'x86' }
 
-    runs-on: ${{ matrix.runs-on || format('{0}-{1}', matrix.os, 'latest') }}
+    runs-on: ${{ format('{0}-{1}', matrix.os, 'latest') }}
     needs: Build
 
     env:
