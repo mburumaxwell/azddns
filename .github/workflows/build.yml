@@ -127,9 +127,11 @@ jobs:
         - { os: ubuntu, rid-prefix: 'linux' }
         - { os: windows, rid-prefix: 'win' }
         - { os: macos, rid-prefix: 'osx' }
-        # https://github.blog/changelog/2025-01-16-linux-arm64-hosted-runners-now-available-for-free-in-public-repositories-public-preview/
-        - { os: ubuntu, arch: 'arm64', runs-on: ubuntu-24.04-arm }
         - { os: windows, archive-type: 'zip' } # windows creates zip files, others default to 'tar'
+        # https://github.blog/changelog/2025-01-16-linux-arm64-hosted-runners-now-available-for-free-in-public-repositories-public-preview/
+        # https://github.com/actions/partner-runner-images
+        - { os: ubuntu, arch: 'arm64', runs-on: ubuntu-24.04-arm }
+        - { os: windows, arch: 'arm64', runs-on: 'windows-11-arm' }
         exclude:
         # only windows supports x86 for PublishAot
         - { os: macos, arch: 'x86' }
