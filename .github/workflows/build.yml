@@ -199,7 +199,7 @@ jobs:
       run: mkdir ${{ github.workspace }}/releases
 
     - name: Create Archive (${{ matrix.archive-type || 'tar.gz' }})
-      uses: thedoctor0/zip-release@master
+      uses: thedoctor0/zip-release@main
       with:
         type: ${{ matrix.archive-type || 'tar' }}
         filename: ${{ github.workspace }}/releases/azddns-${{ needs.Build.outputs.fullSemVer }}-${{ env.DOTNET_RID }}.${{ env.ARCHIVE_EXT }}
@@ -290,7 +290,7 @@ jobs:
         cache-to: type=inline # sets BUILDKIT_INLINE_CACHE=1
         tags: ${{ env.DOCKER_TAGS }}
         labels: |
-          org.opencontainers.image.description="Cleanup tool for Azure resources for reviews"
+          org.opencontainers.image.description="Dynamic DNS (DDNS) tool for Azure DNS"
           org.opencontainers.image.source=${{ github.repository }}
           org.opencontainers.image.version=${{ needs.Build.outputs.fullSemVer }}
           org.opencontainers.image.revision=${{ github.sha }}
