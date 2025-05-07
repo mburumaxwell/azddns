@@ -1,6 +1,4 @@
-FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-alpine
-
-RUN apk add --no-cache gcompat
+FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-alpine AS base
 
 ARG TARGETPLATFORM
 COPY binaries/ /binaries/
@@ -17,4 +15,12 @@ RUN rm -rf /binaries
 # set executable permissions (needed because we are copying from  outside the container)
 RUN chmod +x /bin/azddns
 
+# Final minimal image.
+# We use a multi-stage build to avoid including the entire /binaries directory in the final image.
+# If we removed /binaries in the same layer where we copied it, it would still be part of the image history and increase the final size.
+# This second stage ensures only the azddns binary and runtime dependencies are retained.
+FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-alpine AS runtime
+
+RUN apk add --no-cache gcompat
+COPY --from=base /bin/azddns /bin/azddns
 ENTRYPOINT ["/bin/azddns"]
