@@ -304,3 +304,41 @@ jobs:
           com.github.image.job.id=${{ github.job }}
           com.github.image.source.sha=${{ github.sha }}
           com.github.image.source.branch=${{ github.ref }}
+
+  Packaging:
+    runs-on: ubuntu-latest
+    needs: [Build, Native]
+
+    steps:
+    - name: Download Artifact (native)
+      uses: actions/download-artifact@v4
+      with:
+        path: native
+        pattern: native-*
+        merge-multiple: true
+
+    - name: Generate checksum
+      uses: jmgilman/actions-generate-checksum@v1
+      with:
+        method: 'sha256'
+        output: 'checksum.txt'
+        patterns: |
+          releases/azddns-*.apk
+          releases/azddns-*.deb
+          releases/azddns-*.rpm
+          releases/azddns-*.tar.gz
+          releases/azddns-*.zip
+
+    - name: Upload Artifact (checksum)
+      uses: actions/upload-artifact@v4
+      with:
+        path: checksum.txt
+        name: checksum
+        retention-days: 1
+
+    - name: Upload Artifact (binaries)
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{ github.workspace }}/native/**
+        name: native
+        retention-days: 1
