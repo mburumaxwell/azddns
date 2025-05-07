@@ -10,7 +10,7 @@
     <ToolCommandName>azddns</ToolCommandName>
     <PackageId>azddns</PackageId>
     <AssemblyName>azddns</AssemblyName>
-    <!-- PublishAot cannot work when dotnet pack is called, so we set it in the workflow and use IsAotCompatible for dev -->
+    <!-- PublishAot cannot work when dotnet pack is called. Only set it in the workflow. Use IsAotCompatible for dev -->
     <IsAotCompatible>true</IsAotCompatible>
     <!-- <PublishAot>true</PublishAot> -->
   </PropertyGroup>
@@ -20,7 +20,6 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <OptimizationPreference>Size</OptimizationPreference>
     <EventSourceSupport>false</EventSourceSupport>
-    <StripSymbols>true</StripSymbols>
   </PropertyGroup>
 
   <PropertyGroup>
