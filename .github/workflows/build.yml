@@ -126,9 +126,108 @@ jobs:
         --api-key ${{ secrets.NUGET_API_KEY }}
         --skip-duplicate
 
+  Native:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ 'macos', 'ubuntu', 'windows' ]
+        arch: [ 'arm64' , 'x64' ]
+        include:
+        # list of RIDs (Runtime Identifiers) can be found at:
+        # https://github.com/dotnet/runtime/blob/main/src/libraries/Microsoft.NETCore.Platforms/src/runtime.json
+        - { os: ubuntu, rid-prefix: 'linux' }
+        - { os: windows, rid-prefix: 'win' }
+        - { os: macos, rid-prefix: 'osx' }
+        # macos-latest uses macos-12 which fails to build the app (macos-13 works)
+        - { os: macos, runs-on: 'macos-13' } # macos-latest
+        - { os: windows, archive-type: 'zip' } # windows creates zip files, others default to 'tar'
+
+    runs-on: ${{ matrix.runs-on || format('{0}-{1}', matrix.os, 'latest') }}
+    needs: Version
+    name: Build Native
+
+    env:
+      DOTNET_RID: ${{ format('{0}-{1}', matrix.rid-prefix, matrix.arch) }}
+      ARCHIVE_EXT: ${{ matrix.archive-type || 'tar.gz' }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+
+    # NativeAOT does not support full cross-compilation out of the box.
+    # When targeting linux-arm64 from a linux-amd64 GitHub Actions runner:
+    # - The compiler generates ARM64 native object files
+    # - But the host's default linker (ld.bfd or lld) cannot link ARM64 binaries
+    # - We explicitly install and use aarch64-linux-gnu-ld, the cross-linker
+    #
+    # For linux-x64, we skip this override and let the SDK pick the default linker (lld)
+    # This setup allows multi-arch AoT builds in one Dockerfile via docker buildx
+    # Some guidance from
+    # - https://github.com/dotnet/dotnet-docker/blob/main/src/sdk/10.0/trixie-slim-aot/amd64/Dockerfile
+    # - https://github.com/dn-vm/dnvm/blob/main/.github/workflows/publish.yml
+    # - https://github.com/dotnet/runtimelab/issues/1785#issuecomment-993179119
+    # - https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot
+    # - scouring the web!
+    - name: Install arm64 linker and runtime support
+      if: ${{ matrix.os == 'ubuntu' && matrix.arch == 'arm64' }}
+      run: |
+        sudo apt-get update && \
+        sudo apt-get install -y \
+          clang llvm zlib1g-dev \
+          binutils-aarch64-linux-gnu \
+          gcc-aarch64-linux-gnu \
+          libc6-dev-arm64-cross
+
+    - name: Build & Publish
+      run: >
+        dotnet publish
+        --runtime ${{ env.DOTNET_RID }}
+        --configuration Release
+        -p:PackageVersion=${{ needs.Version.outputs.fullSemVer }}
+        -p:VersionPrefix=${{ needs.Version.outputs.fullSemVer }}
+        -p:PublishAot=true
+        ${{ matrix.os == 'ubuntu' && matrix.arch == 'arm64' && '-p:IlcPath=/usr/bin/aarch64-linux-gnu-ld' || '' }}
+        --output ${{ github.workspace }}/drop/${{ env.DOTNET_RID }}
+        AzureDDNS/AzureDDNS.csproj
+
+    - name: Test (Binary) # ensure the CLI can launch (catches global DI issues)
+      # ARM runners are in preview and we cannot use them, so we skip this test
+      # https://github.blog/changelog/2023-10-30-accelerate-your-ci-cd-with-arm-based-hosted-runners-in-github-actions/
+      # TODO: consider using QEMU emulator for ARM?
+      if: ${{ !contains(matrix.arch, 'arm') }}
+      run: ./azddns --version
+      working-directory: ${{ github.workspace }}/drop/${{ env.DOTNET_RID }}
+
+    - name: Upload Artifact (drop)
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{ github.workspace }}/drop/**
+        name: drop-${{ env.DOTNET_RID }}
+        retention-days: 1
+
+    - name: Create Archive Folder
+      run: mkdir ${{ github.workspace }}/releases
+
+    - name: Create Archive (${{ matrix.archive-type || 'tar.gz' }})
+      uses: thedoctor0/zip-release@master
+      with:
+        type: ${{ matrix.archive-type || 'tar' }}
+        filename: ${{ github.workspace }}/releases/azddns-${{ needs.Version.outputs.fullSemVer }}-${{ env.DOTNET_RID }}.${{ env.ARCHIVE_EXT }}
+        directory: ${{ github.workspace }}/drop/${{ env.DOTNET_RID }}
+
+    - name: Upload Artifact (releases)
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{ github.workspace }}/releases/**
+        name: releases-${{ env.DOTNET_RID }}
+        retention-days: 1
+
   Docker:
     runs-on: ubuntu-latest
-    needs: Version
+    needs: [Version, Native]
     env:
       DOCKER_TAGS: '' # helps with intellisense
       IMAGE_NAME: 'azddns'
@@ -136,9 +235,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
 
     # Generate tags to use in multi-arch build.
     # This is because we cannot build multi-arch images and load them for later pushing.
@@ -177,6 +273,16 @@ jobs:
         FULL_SEMVER: ${{ needs.Version.outputs.fullSemVer }}
         MAJOR: ${{ needs.Version.outputs.major }}
         MINOR: ${{ needs.Version.outputs.minor }}
+
+    - name: Download Artifact (drop)
+      uses: actions/download-artifact@v4
+      with:
+        path: drop
+        pattern: drop-*
+        merge-multiple: true
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
     - name: Log into registry
       if: ${{ !startsWith(github.ref, 'refs/pull') }}
