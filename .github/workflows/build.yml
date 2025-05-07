@@ -114,7 +114,7 @@ jobs:
         --api-key ${{ secrets.NUGET_API_KEY }}
         --skip-duplicate
 
-  Native:
+  Binaries:
     strategy:
       fail-fast: true
       matrix:
@@ -158,13 +158,13 @@ jobs:
         -p:VersionPrefix=${{ needs.Build.outputs.fullSemVer }}
         -p:PublishAot=true
         ${{ matrix.os == 'ubuntu' && matrix.arch == 'arm64' && '-p:IlcPath=/usr/bin/aarch64-linux-gnu-ld' || '' }}
-        --output ${{ github.workspace }}/native/${{ env.DOTNET_RID }}
+        --output ${{ github.workspace }}/binaries/${{ env.DOTNET_RID }}
         AzureDDNS/AzureDDNS.csproj
 
     - name: Remove Debug Symbols
       shell: bash
       run: rm -rf *.pdb *.dbg *.dSYM
-      working-directory: ${{ github.workspace }}/native/${{ env.DOTNET_RID }}
+      working-directory: ${{ github.workspace }}/binaries/${{ env.DOTNET_RID }}
 
     - name: Test (Binary) # ensure the CLI can launch (catches global DI issues)
       # ARM runners are in preview and we cannot use them, so we skip this test
@@ -172,13 +172,13 @@ jobs:
       # TODO: consider using QEMU emulator for ARM?
       if: ${{ !contains(matrix.arch, 'arm') }}
       run: ./azddns --version
-      working-directory: ${{ github.workspace }}/native/${{ env.DOTNET_RID }}
+      working-directory: ${{ github.workspace }}/binaries/${{ env.DOTNET_RID }}
 
-    - name: Upload Artifact (native)
+    - name: Upload Artifact (binaries)
       uses: actions/upload-artifact@v4
       with:
-        path: ${{ github.workspace }}/native/**
-        name: native-${{ env.DOTNET_RID }}
+        path: ${{ github.workspace }}/binaries/**
+        name: binaries-${{ env.DOTNET_RID }}
         retention-days: 1
 
     - name: Create Archive Folder
@@ -189,7 +189,7 @@ jobs:
       with:
         type: ${{ matrix.archive-type || 'tar' }}
         filename: ${{ github.workspace }}/releases/azddns-${{ needs.Build.outputs.fullSemVer }}-${{ env.DOTNET_RID }}.${{ env.ARCHIVE_EXT }}
-        directory: ${{ github.workspace }}/native/${{ env.DOTNET_RID }}
+        directory: ${{ github.workspace }}/binaries/${{ env.DOTNET_RID }}
 
     - name: Upload Artifact (releases)
       uses: actions/upload-artifact@v4
@@ -200,7 +200,7 @@ jobs:
 
   Docker:
     runs-on: ubuntu-latest
-    needs: [Build, Native]
+    needs: [Build, Binaries]
     env:
       DOCKER_TAGS: '' # helps with intellisense
       IMAGE_NAME: 'azddns'
@@ -247,11 +247,11 @@ jobs:
         MAJOR: ${{ needs.Build.outputs.major }}
         MINOR: ${{ needs.Build.outputs.minor }}
 
-    - name: Download Artifact (native)
+    - name: Download Artifact (binaries)
       uses: actions/download-artifact@v4
       with:
-        path: native
-        pattern: native-*
+        path: binaries
+        pattern: binaries-*
         merge-multiple: true
 
     - name: Set up Docker Buildx
@@ -289,7 +289,7 @@ jobs:
 
   Packaging:
     runs-on: ubuntu-latest
-    needs: [Build, Native]
+    needs: [Build, Binaries]
 
     steps:
     - name: Download Artifact (releases)
@@ -315,7 +315,7 @@ jobs:
     - name: Strip directory
       uses: jacobtomlinson/gha-find-replace@v3
       with:
-        find: "native/azddns-"
+        find: "binaries/azddns-"
         replace: "azddns-"
         include: checksum.txt
 
@@ -326,16 +326,16 @@ jobs:
         name: checksum
         retention-days: 1
 
-    - name: Download Artifact (native)
+    - name: Download Artifact (binaries)
       uses: actions/download-artifact@v4
       with:
-        path: native
-        pattern: native-*
+        path: binaries
+        pattern: binaries-*
         merge-multiple: true
 
     - name: Upload Artifact (binaries)
       uses: actions/upload-artifact@v4
       with:
-        path: ${{ github.workspace }}/native/**
-        name: native
+        path: ${{ github.workspace }}/binaries/**
+        name: binaries
         retention-days: 1
