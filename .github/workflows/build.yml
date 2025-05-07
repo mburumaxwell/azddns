@@ -129,7 +129,8 @@ jobs:
         - { os: macos, rid-prefix: 'osx' }
         - { os: windows, archive-type: 'zip' } # windows creates zip files, others default to 'tar'
         # https://github.blog/changelog/2025-01-16-linux-arm64-hosted-runners-now-available-for-free-in-public-repositories-public-preview/
-        # https://github.com/actions/partner-runner-images
+        # https://github.blog/changelog/2025-04-14-windows-arm64-hosted-runners-now-available-in-public-preview
+        # macos-latest and macos-14 onwards are arm64 by default
         - { os: ubuntu, arch: 'arm64', runs-on: ubuntu-24.04-arm }
         - { os: windows, arch: 'arm64', runs-on: 'windows-11-arm' }
         exclude:
@@ -337,3 +338,9 @@ jobs:
         path: ${{ github.workspace }}/binaries/**
         name: binaries
         retention-days: 1
+
+    - name: Upload Artifact (binaries)
+      uses: geekyeggo/delete-artifact@v5
+      with:
+        name: |
+          binaries-*
