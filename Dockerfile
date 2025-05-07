@@ -7,6 +7,7 @@ COPY native/ /native/
 
 RUN case "$TARGETPLATFORM" in \
         "linux/amd64") cp /native/linux-x64/azddns /bin/azddns ;; \
+        "linux/arm/v7") cp /native/linux-arm/azddns /bin/azddns ;; \
         "linux/arm64") cp /native/linux-arm64/azddns /bin/azddns ;; \
         *) echo "Unsupported: $TARGETPLATFORM" && exit 1 ;; \
     esac

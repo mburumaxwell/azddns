@@ -10,6 +10,7 @@ ARG VERSION=0.1.0-dev
 RUN echo "TARGETPLATFORM=${TARGETPLATFORM}" && \
     case "${TARGETPLATFORM}" in \
         "linux/amd64") export RID=linux-x64 && export LINKER="" ;; \
+        "linux/arm/v7") export RID=linux-arm && export LINKER="" ;; \
         "linux/arm64") export RID=linux-arm64 && export LINKER="/usr/bin/aarch64-linux-gnu-ld" ;; \
         *) echo "Unsupported TARGETPLATFORM: ${TARGETPLATFORM}" && exit 1 ;; \
     esac && \
@@ -38,6 +39,9 @@ RUN apt-get update \
             binutils-aarch64-linux-gnu \
             gcc-aarch64-linux-gnu \
             libc6-dev-arm64-cross \
+            binutils-arm-linux-gnueabihf \
+            gcc-arm-linux-gnueabihf \
+            libc6-dev-armhf-cross \
     && rm -rf /var/lib/apt/lists/*
 
 # Publish NativeAOT binary with conditional linker
