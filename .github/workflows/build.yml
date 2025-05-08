@@ -31,7 +31,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write # write required for ncipollo/release-action to create a release
   packages: write
   attestations: write # required for actions/attest-build-provenance
   id-token: write # required for actions/attest-build-provenance
@@ -413,9 +413,6 @@ jobs:
       COMMITTER_EMAIL: '1645026+mburumaxwell@users.noreply.github.com'
       COMMITTER_USERNAME: ${{ github.repository_owner }}
       VERSION: ${{ needs.Packaging.outputs.fullSemVer }}
-
-    permissions:
-      contents: write # required for ncipollo/release-action to create a release
 
     steps:
       - name: Download Artifact (releases)
