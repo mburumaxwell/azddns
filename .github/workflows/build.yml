@@ -401,6 +401,9 @@ jobs:
       VERSION: ${{ needs.Packaging.outputs.fullSemVer }}
       API_TOKEN_GITHUB: ${{ secrets.RELEASING_GITHUB_TOKEN }} # used by dmnemec/copy_file_to_another_repo_action
 
+    permissions:
+      contents: write # required for ncipollo/release-action to create a release
+
     steps:
       - name: Download Artifact (releases)
         uses: actions/download-artifact@v4
