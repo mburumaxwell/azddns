@@ -1,5 +1,10 @@
 # azddns – Azure Dynamic DNS CLI Tool
 
+[![NuGet](https://img.shields.io/nuget/v/azddns.svg)](https://www.nuget.org/packages/azddns/)
+[![GitHub Workflow Status](https://github.com/mburumaxwell/azddns/actions/workflows/build.yml/badge.svg)](https://github.com/mburumaxwell/azddns/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/release/mburumaxwell/azddns.svg)](https://github.com/mburumaxwell/azddns/releases/latest)
+[![license](https://img.shields.io/github/license/mburumaxwell/azddns.svg)](LICENSE)
+
 A CLI tool to update Azure DNS `A` or `AAAA` records with the current public IP address of the machine it runs on (e.g., a Pi, dev laptop, container, or VM). Intended for use cases like keeping dynamic IPs updated in Azure DNS so they can be referenced in firewall rules or other infrastructure.
 
 Keeps records like `office.maxwellweru.io` or `office.contoso.com` up-to-date with the current public IP of dynamic endpoints. This consequently enables firewall rules to allow access based on hostname/IPs synced via [azfwman](https://github.com/mburumaxwell/azfwrmgr).
@@ -84,7 +89,7 @@ azddns run --config ~/.az-ddns/config.json
 
 ## 📥 Installation
 
-The CLI tool is available for macOS, Windows and Linux (Ubuntu). You can download each of the binaries in the [releases](https://github.com/mburumaxwell/azddns/releases) or you can use package managers in the respective platforms.
+The CLI tool is available for macOS, Windows and Linux. You can download each of the binaries in the [releases](https://github.com/mburumaxwell/azddns/releases) or you can use package managers in the respective platforms.
 
 ### 🍎 macOS
 
@@ -101,6 +106,15 @@ The CLI tool is available on Windows via [Scoop](https://scoop.sh/) package mana
 ```bash
 scoop bucket add mburumaxwell https://github.com/mburumaxwell/scoop-tools.git
 scoop install azddns
+```
+
+### 🛠️ .NET Tool
+
+The CLI tool is available anywhere .NET is installed as a local tool or a global tool:
+
+```bash
+dotnet tool install --global azddns
+azddns --help
 ```
 
 ### 🐳 Docker
