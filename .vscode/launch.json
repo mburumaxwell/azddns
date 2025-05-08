@@ -8,7 +8,7 @@
       "name": "Launch (simple)",
       "type": "dotnet",
       "request": "launch",
-      "projectPath": "${workspaceFolder}/AzureDDNS/AzureDDNS.csproj"
+      "projectPath": "${workspaceFolder}/src/AzureDDNS/AzureDDNS.csproj"
     },
     {
       "name": "Launch (web)",
@@ -36,7 +36,7 @@
       "request": "launch",
       "preLaunchTask": "docker-run: debug",
       "netCore": {
-        "appProject": "${workspaceFolder}/AzureDDNS/AzureDDNS.csproj"
+        "appProject": "${workspaceFolder}/src/AzureDDNS/AzureDDNS.csproj"
       }
     }
   ]
