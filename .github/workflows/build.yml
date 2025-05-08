@@ -409,6 +409,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ${{ github.workspace }}/releases
+          name: releases
 
       - name: Upload Release
         uses: ncipollo/release-action@v1
