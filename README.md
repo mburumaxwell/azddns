@@ -82,7 +82,28 @@ azddns run --config ~/.az-ddns/config.json
 
 > A managed identity is basically a service principal that you use without having to manage the credentials. System assigned managed identities are simple and no further configuration is required. For User assigned managed identity, you only need to set the `AZURE_CLIENT_ID` environment variable to disambiguate from any other being used by the platform such as when using ACA jobs.
 
-## Docker
+## 📥 Installation
+
+The CLI tool is available for macOS, Windows and Linux (Ubuntu). You can download each of the binaries in the [releases](https://github.com/mburumaxwell/azddns/releases) or you can use package managers in the respective platforms.
+
+### 🍎 macOS
+
+The CLI tool is available on macOS via [Homebrew](https://brew.sh/):
+
+```sh
+brew install mburumaxwell/tap/azddns
+```
+
+### 🖥️ Windows
+
+The CLI tool is available on Windows via [Scoop](https://scoop.sh/) package manager:
+
+```bash
+scoop bucket add mburumaxwell https://github.com/mburumaxwell/scoop-tools.git
+scoop install azddns
+```
+
+### 🐳 Docker
 
 The CLI tool is also available as a Docker image: [mburumaxwell/azddns](https://github.com/mburumaxwell/azddns/pkgs/container/azddns).
 
