@@ -3,7 +3,7 @@ name: Cleanup
 on:
   workflow_dispatch:
   schedule:
-  - cron: '0 0 */14 * *' # every 14 days
+    - cron: '0 0 */14 * *' # every 14 days
 
 permissions:
   contents: read
@@ -14,16 +14,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Delete old packages (docker)
-      uses: actions/delete-package-versions@v5
-      with:
-        package-name: 'azddns'
-        package-type: 'container'
-        min-versions-to-keep: 20
+      - name: Delete old packages (docker)
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'azddns'
+          package-type: 'container'
+          min-versions-to-keep: 20
 
-    - name: Delete old packages (nuget)
-      uses: actions/delete-package-versions@v5
-      with:
-        package-name: 'azddns'
-        package-type: 'nuget'
-        min-versions-to-keep: 10
+      - name: Delete old packages (nuget)
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'azddns'
+          package-type: 'nuget'
+          min-versions-to-keep: 10

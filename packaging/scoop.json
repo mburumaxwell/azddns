@@ -6,23 +6,17 @@
   "architecture": {
     "arm64": {
       "url": "https://github.com/mburumaxwell/azddns/releases/download/#{VERSION}#/azddns-#{VERSION}#-win-arm64.zip",
-      "bin": [
-        "azddns.exe"
-      ],
+      "bin": ["azddns.exe"],
       "hash": "#{RELEASE_SHA256_WINDOWS_ARM64}#"
     },
     "64bit": {
       "url": "https://github.com/mburumaxwell/azddns/releases/download/#{VERSION}#/azddns-#{VERSION}#-win-x64.zip",
-      "bin": [
-        "azddns.exe"
-      ],
+      "bin": ["azddns.exe"],
       "hash": "#{RELEASE_SHA256_WINDOWS_X64}#"
     },
     "32bit": {
       "url": "https://github.com/mburumaxwell/azddns/releases/download/#{VERSION}#/azddns-#{VERSION}#-win-x86.zip",
-      "bin": [
-        "azddns.exe"
-      ],
+      "bin": ["azddns.exe"],
       "hash": "#{RELEASE_SHA256_WINDOWS_X86}#"
     }
   }
