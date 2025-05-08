@@ -296,21 +296,88 @@ jobs:
     - name: Delete Artifacts (binaries-*)
       uses: geekyeggo/delete-artifact@v5
       with:
-        name: |
-          binaries-*
-          releases-*
+        name: binaries-*
 
   Packaging:
     runs-on: ubuntu-latest
     needs: [Build, Binaries]
+    env:
+      VERSION: ${{ needs.Build.outputs.fullSemVer }}
+    outputs:
+      fullSemVer: ${{ needs.Build.outputs.fullSemVer }}
 
     steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
     - name: Download Artifact (releases)
       uses: actions/download-artifact@v4
       with:
-        path: releases
+        path: ${{ github.workspace }}/releases
         pattern: releases-*
         merge-multiple: true
+
+    - name: Compute binary checksums
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const path = require('path');
+
+          const version = '${{ env.VERSION }}';
+          const dir = '${{ github.workspace }}/releases';
+          const outputFile = '${{ github.workspace }}/releases/checksum.txt';
+
+          const files = {
+            RELEASE_SHA256_MACOS_ARM64: `azddns-${version}-osx-arm64.tar.gz`,
+            RELEASE_SHA256_MACOS_X64: `azddns-${version}-osx-x64.tar.gz`,
+
+            RELEASE_SHA256_LINUX_ARM64: `azddns-${version}-linux-arm64.tar.gz`,
+            RELEASE_SHA256_LINUX_X64: `azddns-${version}-linux-x64.tar.gz`,
+
+            RELEASE_SHA256_WINDOWS_ARM64: `azddns-${version}-win-arm64.zip`,
+            RELEASE_SHA256_WINDOWS_X86: `azddns-${version}-win-x86.zip`,
+            RELEASE_SHA256_WINDOWS_X64: `azddns-${version}-win-x64.zip`,
+          };
+
+          const lines = [];
+
+          for (const [envKey, fileName] of Object.entries(files)) {
+            const filePath = path.join(dir, fileName);
+            if (!fs.existsSync(filePath)) {
+              throw new Error(`Missing expected file: ${fileName}`);
+            }
+
+            const buffer = fs.readFileSync(filePath);
+            const hash = crypto.createHash('sha256').update(buffer).digest('hex');
+            core.exportVariable(envKey, hash);
+            core.info(`${envKey}: ${hash}`);
+
+            lines.push(`${hash}  ${fileName}`);
+          }
+          fs.writeFileSync(outputFile, lines.join('\n') + '\n');
+          core.info(`Checksums written to checksum.txt:\n${lines.join('\n')}`);
+
+    - name: Copy packaging
+      run: |
+        mkdir -p ${{ github.workspace }}/releases/homebrew/ && \
+        mv packaging/formula.rb ${{ github.workspace }}/releases/homebrew/azddns.rb && \
+        mkdir -p ${{ github.workspace }}/releases/scoop/ && \
+        mv packaging/scoop.json ${{ github.workspace }}/releases/scoop/azddns.json
+
+    - name: Replace tokens
+      uses: qetza/replacetokens-action@v1
+      with:
+        root: ${{ github.workspace }}/releases
+        sources: |
+          **/*.rb
+          **/*.json
+          **/*.jsonc
+        variables: '[${{ toJSON(env) }}]' # use env
+        log-level: 'debug'
+        if-no-files-found: 'error'
+        missing-var-log: 'error'
 
     - name: Upload Artifact (releases)
       uses: actions/upload-artifact@v4
@@ -319,41 +386,50 @@ jobs:
         name: releases
         retention-days: 1
 
-    - name: Generate checksum
-      uses: jmgilman/actions-generate-checksum@v1
-      with:
-        method: 'sha256'
-        output: 'checksum.txt'
-        patterns: |
-          releases/azddns-*.apk
-          releases/azddns-*.deb
-          releases/azddns-*.rpm
-          releases/azddns-*.tar.gz
-          releases/azddns-*.zip
-
-    # retain only the file names
-    - name: Strip directory
-      uses: jacobtomlinson/gha-find-replace@v3
-      with:
-        find: "binaries/azddns-"
-        replace: "azddns-"
-        include: checksum.txt
-
-    - name: Upload Artifact (checksum)
-      uses: actions/upload-artifact@v4
-      with:
-        path: checksum.txt
-        name: checksum
-        retention-days: 1
-
-    - name: Download Artifact (binaries-*)
-      uses: actions/download-artifact@v4
-      with:
-        path: binaries
-        pattern: binaries-*
-        merge-multiple: true
-
     - name: Delete Artifacts (releases-*)
       uses: geekyeggo/delete-artifact@v5
       with:
         name: releases-*
+
+  Release:
+    runs-on: ubuntu-latest
+    needs: [Packaging]
+    if: startsWith(github.ref, 'refs/tags/')
+    env:
+      COMMITTER_EMAIL: '1645026+mburumaxwell@users.noreply.github.com'
+      COMMITTER_USERNAME: ${{ github.repository_owner }}
+      VERSION: ${{ needs.Packaging.outputs.fullSemVer }}
+      API_TOKEN_GITHUB: ${{ secrets.RELEASING_GITHUB_TOKEN }} # used by dmnemec/copy_file_to_another_repo_action
+
+    steps:
+    - name: Download Artifact (releases)
+      uses: actions/download-artifact@v4
+      with:
+        path: ${{ github.workspace }}/releases
+
+    - name: Upload Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: ${{ github.workspace }}/releases/*.*
+        token: ${{ secrets.GITHUB_TOKEN }}
+        draft: true
+        allowUpdates: true
+
+    - name: Update homebrew tap
+      uses: dmnemec/copy_file_to_another_repo_action@main
+      with:
+        source_file: '${{ github.workspace }}/releases/homebrew/azddns.rb'
+        destination_folder: 'Formula'
+        destination_repo: '${{ github.repository_owner }}/homebrew-tap'
+        user_email: '${{ env.COMMITTER_EMAIL }}'
+        user_name: '${{ env.COMMITTER_USERNAME }}'
+        commit_message: 'Update azddns to ${{ env.VERSION }}'
+
+    - name: Update scoop bucket
+      uses: dmnemec/copy_file_to_another_repo_action@main
+      with:
+        source_file: '${{ github.workspace }}/releases/scoop/azddns.json'
+        destination_repo: '${{ github.repository_owner }}/scoop-tools'
+        user_email: '${{ env.COMMITTER_EMAIL }}'
+        user_name: '${{ env.COMMITTER_USERNAME }}'
+        commit_message: 'Update azddns to ${{ env.VERSION }}'
