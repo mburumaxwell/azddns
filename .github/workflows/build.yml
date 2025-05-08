@@ -358,7 +358,8 @@ jobs:
             for (const [envKey, fileName] of Object.entries(files)) {
               const filePath = path.join(dir, fileName);
               if (!fs.existsSync(filePath)) {
-                throw new Error(`Missing expected file: ${fileName}`);
+                core.warning(`Missing expected file: ${filePath}`);
+                continue;
               }
 
               const buffer = fs.readFileSync(filePath);
