@@ -161,6 +161,48 @@ docker run --rm -it \
   run --config /config/config.json
 ```
 
+## 🛠️ Running with systemd (Recommended for Linux / Home Assistant Core users)
+
+If you’re using azddns on a Raspberry Pi, server, or anywhere systemd is available, you can set it up as a service for automatic startup/restarts.
+
+⚠️ Ensure azddns is installed before proceeding.
+
+1. Copy your config file to a system-wide location:
+
+   ```bash
+   sudo mkdir -p /etc/azddns
+   sudo cp ~/.az-ddns/config.json /etc/azddns/config.json
+   ```
+
+2. Create a file for environment variables:
+
+   ```bash
+   sudo tee /etc/azddns/env <<EOF
+   AZURE_TENANT_ID=your-tenant-id
+   AZURE_CLIENT_ID=your-client-id
+   AZURE_CLIENT_SECRET=your-client-secret
+   EOF
+
+   sudo chmod 600 /etc/azddns/env
+   sudo chown root:root /etc/azddns/env
+   ```
+
+3. Copy and enable the systemd unit:
+
+   ```bash
+   sudo cp packaging/azddns.service /etc/systemd/system/azddns.service
+   # You can instead download if you have not cloned the repo
+   # sudo curl -o /etc/systemd/system/azddns.service -L https://raw.githubusercontent.com/mburumaxwell/azddns/main/packaging/systemd/azddns.service
+   sudo systemctl daemon-reexec
+   sudo systemctl enable --now azddns
+   ```
+
+4. Check logs:
+
+   ```bash
+   journalctl -u azddns -f
+   ```
+
 ## Alternatives
 
 There are quite a number of alternatives but nothing quite matched what I needed. This is what I looked at:

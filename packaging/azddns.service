@@ -1,0 +1,14 @@
+[Unit]
+Description=azddns - Azure Dynamic DNS Updater
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/azddns/env
+ExecStart=/usr/local/bin/azddns run --config /etc/azddns/config.json
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
