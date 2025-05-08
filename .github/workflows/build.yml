@@ -399,7 +399,6 @@ jobs:
       COMMITTER_EMAIL: '1645026+mburumaxwell@users.noreply.github.com'
       COMMITTER_USERNAME: ${{ github.repository_owner }}
       VERSION: ${{ needs.Packaging.outputs.fullSemVer }}
-      API_TOKEN_GITHUB: ${{ secrets.RELEASING_GITHUB_TOKEN }} # used by dmnemec/copy_file_to_another_repo_action
 
     permissions:
       contents: write # required for ncipollo/release-action to create a release
@@ -411,13 +410,18 @@ jobs:
           path: ${{ github.workspace }}/releases
           name: releases
 
+      - name: Build Changelog
+        id: changelog
+        uses: mikepenz/release-changelog-builder-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: ${{ github.workspace }}/releases/*.*
           token: ${{ secrets.GITHUB_TOKEN }}
-          draft: true
-          allowUpdates: true
+          body: ${{ steps.changelog.outputs.changelog }}
 
       - name: Update homebrew tap
         uses: dmnemec/copy_file_to_another_repo_action@main
@@ -428,6 +432,8 @@ jobs:
           user_email: '${{ env.COMMITTER_EMAIL }}'
           user_name: '${{ env.COMMITTER_USERNAME }}'
           commit_message: 'Update azddns to ${{ env.VERSION }}'
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.RELEASING_GITHUB_TOKEN }}
 
       - name: Update scoop bucket
         uses: dmnemec/copy_file_to_another_repo_action@main
@@ -437,3 +443,5 @@ jobs:
           user_email: '${{ env.COMMITTER_EMAIL }}'
           user_name: '${{ env.COMMITTER_USERNAME }}'
           commit_message: 'Update azddns to ${{ env.VERSION }}'
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.RELEASING_GITHUB_TOKEN }}
