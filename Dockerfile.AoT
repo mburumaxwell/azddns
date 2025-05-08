@@ -43,7 +43,7 @@ RUN apt-get update \
 # Publish NativeAOT binary with conditional linker
 RUN export RID=$(cat /RID.txt) && \
     export LINKER=$(cat /LINKER.txt) && \
-    dotnet publish AzureDDNS/AzureDDNS.csproj \
+    dotnet publish src/AzureDDNS/AzureDDNS.csproj \
         --runtime $RID \
         --configuration Release \
         -p:VersionPrefix=$VERSION \

@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AzureDDNS\AzureDDNS.csproj" />
+    <ProjectReference Include="..\..\src\AzureDDNS\AzureDDNS.csproj" />
   </ItemGroup>
 
 </Project>
