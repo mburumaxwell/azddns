@@ -99,6 +99,23 @@ The CLI tool is available on macOS via [Homebrew](https://brew.sh/):
 brew install mburumaxwell/tap/azddns
 ```
 
+### 🐧 Linux (DEB, RPM, APK)
+
+The CLI is also available as native packages for Linux: Debian/Ubuntu (`.deb`), RHEL/Fedora/AlmaLinux (`.rpm`), and Alpine (`.apk`). Download from [Releases](https://github.com/mburumaxwell/azddns/releases) and install with:
+
+```bash
+# Example for Debian/Ubuntu
+sudo dpkg -i azddns-<version>-linux-<arch>.deb
+
+# Example for RHEL/Fedora/AlmaLinux
+sudo dnf install -y azddns-<version>-linux-<arch>.rpm
+
+# Example for Alpine
+sudo apk add --allow-untrusted azddns-<version>-linux-<arch>.apk
+```
+
+> The systemd unit file is bundled in all these formats.
+
 ### 🖥️ Windows
 
 The CLI tool is available on Windows via [Scoop](https://scoop.sh/) package manager:
