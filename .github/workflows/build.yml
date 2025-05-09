@@ -202,6 +202,7 @@ jobs:
           filename: ${{ github.workspace }}/releases/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.${{ env.ARCHIVE_EXT }}
           directory: ${{ github.workspace }}/binaries/${{ env.DOTNET_RID }}
 
+      # using fpm because it is simple and flexible https://fpm.readthedocs.io/en/latest
       - name: Build Linux packages
         if: ${{ runner.os == 'Linux' }}
         run: |
