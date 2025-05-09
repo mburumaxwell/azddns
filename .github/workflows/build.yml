@@ -249,27 +249,27 @@ jobs:
           name: releases-${{ env.DOTNET_RID }}
           retention-days: 1
 
-      - name: Test (DEB)
+      - name: Test Linux packages
         if: ${{ runner.os == 'Linux' }}
         run: |
+          echo "Testing DEB package ..." && \
           docker run --rm -v "${{ github.workspace }}/releases:/mnt" ubuntu:24.04 /bin/bash -c "
             apt-get update && \
             apt-get install -y ./mnt/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.deb
-          "
+          " && \
+          echo "DEB package works" && \
 
-      - name: Test (RPM)
-        if: ${{ runner.os == 'Linux' }}
-        run: |
+          echo "Testing RPM package ..." && \
           docker run --rm -v "${{ github.workspace }}/releases:/mnt" almalinux:9 /bin/bash -c "
             dnf install -y /mnt/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.rpm
-          "
+          " && \
+          echo "RPM package works" && \
 
-      - name: Test (APK)
-        if: ${{ runner.os == 'Linux' }}
-        run: |
+          echo "Testing APK package ..." && \
           docker run --rm -v "${{ github.workspace }}/releases:/mnt" alpine:latest /bin/sh -c "
             apk add --no-cache --allow-untrusted /mnt/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.apk
           "
+          echo "APK package works"
 
   Docker:
     runs-on: ubuntu-latest
