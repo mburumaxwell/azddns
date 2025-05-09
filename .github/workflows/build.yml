@@ -226,7 +226,6 @@ jobs:
             --license MIT
             --maintainer "${{ env.PKG_MAINTAINER }}"
             --url "${{ env.PKG_HOMEPAGE }}"
-            --prefix /
             .pkgroot/
           )
 
