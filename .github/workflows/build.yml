@@ -218,6 +218,7 @@ jobs:
 
           set -e
           COMMON_ARGS=(
+            --chdir .pkgroot
             --input-type dir
             --name ${{ env.PKG_NAME }}
             --version ${{ env.FULL_SEM_VER }}
@@ -226,7 +227,7 @@ jobs:
             --license MIT
             --maintainer "${{ env.PKG_MAINTAINER }}"
             --url "${{ env.PKG_HOMEPAGE }}"
-            .pkgroot/
+            .
           )
 
           echo "Building DEB package ..." && \
