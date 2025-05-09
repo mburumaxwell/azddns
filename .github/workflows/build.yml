@@ -227,6 +227,8 @@ jobs:
             --license MIT
             --maintainer "${{ env.PKG_MAINTAINER }}"
             --url "${{ env.PKG_HOMEPAGE }}"
+            --vendor "${{ github.repository_owner }}"
+            --category "utils"
             .
           )
 
