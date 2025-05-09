@@ -165,7 +165,8 @@ docker run --rm -it \
 
 If you’re using azddns on a Raspberry Pi, server, or anywhere systemd is available, you can set it up as a service for automatic startup/restarts.
 
-⚠️ Ensure azddns is installed before proceeding.
+> ![NOTE]
+> Ensure azddns is installed before proceeding using any of the methods in this guide.
 
 1. Copy your config file to a system-wide location:
 
@@ -188,6 +189,15 @@ If you’re using azddns on a Raspberry Pi, server, or anywhere systemd is avail
    ```
 
 3. Copy and enable the systemd unit:
+
+   If you have installed `.deb`, `.rpm`, or `.apk`, the systemd unit file is already included.
+
+   ```bash
+   sudo systemctl daemon-reexec
+   sudo systemctl enable --now azddns
+   ```
+
+   If you are using homebrew or have downloaded the binaries, you need to copy the systemd unit file or download it from GitHub.
 
    ```bash
    sudo cp packaging/azddns.service /etc/systemd/system/azddns.service
