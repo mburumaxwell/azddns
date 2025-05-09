@@ -533,9 +533,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           body: ${{ steps.changelog.outputs.changelog }}
 
-      # TODO: publish DEB to debian repo available
-      # TODO: publish RPM to rpm repo available
-      # TODO: publish APK to apk repo available
+      # TODO: Publish .deb packages to an APT repository
+      # TODO: Publish .rpm packages to a YUM/DNF repository
+      # TODO: Publish .apk packages to an Alpine package repository
 
       - name: Update homebrew tap
         uses: dmnemec/copy_file_to_another_repo_action@main
