@@ -231,15 +231,21 @@ jobs:
           )
 
           echo "Building DEB package ..." && \
-          fpm --output-type deb --package ${{ github.workspace }}/releases/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.deb "${COMMON_ARGS[@]}" && \
+          fpm --output-type deb \
+              --package ${{ github.workspace }}/releases/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.deb \
+              "${COMMON_ARGS[@]}" && \
           echo "Built DEB package" && \
 
           echo "Building RPM package ..." && \
-          fpm --output-type rpm --package ${{ github.workspace }}/releases/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.rpm "${COMMON_ARGS[@]}" && \
+          fpm --output-type rpm \
+              --package ${{ github.workspace }}/releases/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.rpm \
+              "${COMMON_ARGS[@]}" && \
           echo "Built RPM package" && \
 
           echo "Building APK package ..." && \
-          fpm --output-type apk --package ${{ github.workspace }}/releases/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.apk "${COMMON_ARGS[@]}" && \
+          fpm --output-type apk \
+              --package ${{ github.workspace }}/releases/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.apk \
+              "${COMMON_ARGS[@]}" && \
           echo "Built APK package" && \
 
           echo "Done"
