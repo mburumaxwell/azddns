@@ -240,7 +240,9 @@ jobs:
 
           echo "Building APK package ..." && \
           fpm --output-type apk --package ${{ github.workspace }}/releases/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.apk "${COMMON_ARGS[@]}" && \
-          echo "Built APK package"
+          echo "Built APK package" && \
+
+          echo "Done"
 
       - name: Upload Artifact (releases)
         uses: actions/upload-artifact@v4
@@ -254,14 +256,15 @@ jobs:
         run: |
           echo "Testing DEB package ..." && \
           docker run --rm -v "${{ github.workspace }}/releases:/mnt" ubuntu:24.04 /bin/bash -c "
-            apt-get update && \
-            apt-get install -y ./mnt/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.deb
+            apt-get install -y ./mnt/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.deb && \
+            azddns --version
           " && \
           echo "DEB package works" && \
 
           echo "Testing RPM package ..." && \
           docker run --rm -v "${{ github.workspace }}/releases:/mnt" almalinux:9 /bin/bash -c "
-            dnf install -y /mnt/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.rpm
+            dnf install -y /mnt/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.rpm && \
+            azddns --version
           " && \
           echo "RPM package works" && \
 
@@ -269,7 +272,9 @@ jobs:
           docker run --rm -v "${{ github.workspace }}/releases:/mnt" alpine:latest /bin/sh -c "
             apk add --no-cache --allow-untrusted /mnt/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.apk
           "
-          echo "APK package works"
+          echo "APK package works" && \
+
+          echo "Done"
 
   Docker:
     runs-on: ubuntu-latest
