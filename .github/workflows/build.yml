@@ -245,6 +245,7 @@ jobs:
           echo "Building APK package ..." && \
           fpm --output-type apk \
               --package ${{ github.workspace }}/releases/azddns-${{ env.FULL_SEM_VER }}-${{ env.DOTNET_RID }}.apk \
+              --depends gcompat \
               "${COMMON_ARGS[@]}" && \
           echo "Built APK package" && \
 
