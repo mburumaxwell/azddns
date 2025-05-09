@@ -172,7 +172,6 @@ jobs:
           -p:PackageVersion=${{ env.FULL_SEM_VER }}
           -p:VersionPrefix=${{ env.FULL_SEM_VER }}
           -p:PublishAot=true
-          ${{ matrix.os == 'ubuntu' && matrix.arch == 'arm64' && '-p:IlcPath=/usr/bin/aarch64-linux-gnu-ld' || '' }}
           --output ${{ github.workspace }}/binaries/${{ env.DOTNET_RID }}
           src/AzureDDNS/AzureDDNS.csproj
 
