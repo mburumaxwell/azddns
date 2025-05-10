@@ -230,6 +230,15 @@ If you’re using azddns on a Raspberry Pi, server, or anywhere systemd is avail
    journalctl -u azddns -f
    ```
 
+## ☸️ Kubernetes Deployment
+
+You can deploy to any Kubernetes cluster by applying the [sample manifest](./k8s.yml)
+
+```bash
+kubectl apply -f k8s.yaml
+kubectl logs -l app=azddns -f
+```
+
 ## Alternatives
 
 There are quite a number of alternatives but nothing quite matched what I needed. This is what I looked at:

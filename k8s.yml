@@ -1,0 +1,66 @@
+# Remember to edit values to match your taste/setup
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: azddns-config
+data:
+  # This is the JSON config read by `azddns run`
+  config.json: |
+    {
+      "subscription": "personal",
+      "resourceGroup": "infra",
+      "zoneName": "maxwellweru.io",
+      "recordName": "office",
+      "ttl": 3600,
+      "interval": 900,
+      "dryRun": false
+    }
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: azddns-credentials
+type: Opaque
+stringData:
+  # Replace with your actual Service Principal (or managed identity) values
+  AZURE_TENANT_ID: "<your-tenant-id>"
+  AZURE_CLIENT_ID: "<your-client-id>"
+  AZURE_CLIENT_SECRET: "<your-client-secret>"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azddns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azddns
+  template:
+    metadata:
+      labels:
+        app: azddns
+    spec:
+      containers:
+        - name: azddns
+          # You can change the tag to one that matches what version you want
+          image: ghcr.io/mburumaxwell/azddns:latest
+          imagePullPolicy: Always # Only necessary if you are pulling a tag that is not immutable e.g. latest, 1, or 1.2
+          args:
+            - run
+            - "--config"
+            - "/config/config.json"
+          # Pull in Azure credentials from the Secret
+          envFrom:
+            - secretRef:
+                name: azddns-credentials
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: config
+          configMap:
+            name: azddns-config
