@@ -7,7 +7,7 @@
 
 A CLI tool to update Azure DNS `A` or `AAAA` records with the current public IP address of the machine it runs on (e.g., a Pi, dev laptop, container, or VM). Intended for use cases like keeping dynamic IPs updated in Azure DNS so they can be referenced in firewall rules or other infrastructure.
 
-Keeps records like `office.maxwellweru.io` or `office.contoso.com` up-to-date with the current public IP of dynamic endpoints. This consequently enables firewall rules to allow access based on hostname/IPs synced via [azfwman](https://github.com/mburumaxwell/azfwrmgr).
+Keeps records like `office.maxwellweru.io` or `office.contoso.com` up-to-date with the current public IP of dynamic endpoints. This consequently enables firewall rules to allow access based on hostname/IPs synced via [azfwrmgr](https://github.com/mburumaxwell/azfwrmgr).
 
 IP information sourced from [ipify](https://www.ipify.org) using <https://api64.ipify.org?format=json>
 
