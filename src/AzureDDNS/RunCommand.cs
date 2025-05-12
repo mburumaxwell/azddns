@@ -10,7 +10,7 @@ internal class RunCommand : Command
     {
         ArgumentNullException.ThrowIfNull(this.host = host, nameof(host));
 
-        Add(configFileOption = new Option<string>(name: "--config-file", aliases: ["-f"])
+        Add(configFileOption = new Option<string>(name: "--config", aliases: ["-f"])
         {
             Description = "Path to the configuration file",
             Required = true,
