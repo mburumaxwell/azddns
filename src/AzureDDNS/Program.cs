@@ -31,7 +31,7 @@ using var host = builder.Build();
 await host.StartAsync();
 
 // prepare the root command
-var root = new RootCommand("Dynamic DNS tool to Azure")
+var root = new RootCommand("Dynamic DNS (DDNS) tool for Azure DNS.")
 {
     new UpdateCommand(host),
     new RunCommand(host),
