@@ -58,11 +58,11 @@
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.14.0" />
     <PackageReference Include="Azure.ResourceManager.Dns" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.6" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta5.25260.104" />
-    <PackageReference Include="System.Net.Http.Json" Version="9.0.4" />
-    <PackageReference Include="System.Memory.Data" Version="9.0.4" /> <!-- Transient, later version supports AoT -->
+    <PackageReference Include="System.Net.Http.Json" Version="9.0.6" />
+    <PackageReference Include="System.Memory.Data" Version="9.0.6" /> <!-- Transient, later version supports AoT -->
     <PackageReference Include="Tingle.Extensions.Logging" Version="5.2.0" />
     <PackageReference Include="Tingle.Extensions.Primitives" Version="5.2.0" />
   </ItemGroup>
