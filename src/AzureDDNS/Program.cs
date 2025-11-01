@@ -36,12 +36,11 @@ var root = new RootCommand("Dynamic DNS (DDNS) tool for Azure DNS.")
     new UpdateCommand(host),
     new RunCommand(host),
 };
-var configuration = new CommandLineConfiguration(root);
 
 // execute the command
 try
 {
-    return await configuration.InvokeAsync(args);
+    return await root.Parse(args).InvokeAsync();
 }
 finally
 {
