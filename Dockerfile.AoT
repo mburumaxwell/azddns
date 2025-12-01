@@ -53,7 +53,7 @@ RUN export RID=$(cat /RID.txt) && \
         --output /app/publish
 
 # Minimal Runtime Image
-FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-alpine AS runtime
 
 RUN apk add --no-cache gcompat
 COPY --from=build /app/publish/azddns /bin/azddns
